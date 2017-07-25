@@ -1,0 +1,38 @@
+{
+  "version": 8,
+  "metadata": {
+    "test": {
+      "width": 64,
+      "height": 64
+    }
+  },
+  "center": [
+    0,
+    0
+  ],
+  "zoom": 4.5,
+  "sources": {
+    "geojson": {
+      "type": "geojson",
+      "data": {
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [0, 0]
+        }
+      }
+    }
+  },
+  "layers": [
+    {
+      "id": "line",
+      "type": "circle",
+      "source": "geojson",
+      "minzoom": 4.3,
+      "paint": {
+        "circle-color": "#EC8D8D",
+        "circle-radius": 4
+      }
+    }
+  ]
+}
