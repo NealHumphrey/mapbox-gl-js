@@ -17,6 +17,7 @@ fi
 PATH="~/.yarn/bin:$PATH"
 
 yarn
+cd test/integration && yarn && cd ../..
 
 if [ "$CIRCLE_BRANCH" == "master" ] || [ -n "$CIRCLE_TAG" ]; then
     pip install --user --upgrade awscli
