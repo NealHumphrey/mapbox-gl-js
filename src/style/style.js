@@ -86,7 +86,7 @@ class Style extends Evented {
         });
 
         const transformRequest = (url, resourceType) => {
-            return  this.map ? this.map._transformRequest(url, resourceType) : { url: url};
+            return  this.map ? this.map._transformRequest(url, resourceType) : { url };
         };
 
         const stylesheetLoaded = (err, stylesheet) => {

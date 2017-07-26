@@ -141,7 +141,7 @@ test('GeoJSONSource#update', (t) => {
 
     t.test('transforms url before making request', (t) => {
         const mapStub = {
-            _transformRequest: (url) => { return { url: url }; }
+            _transformRequest: (url) => { return { url }; }
         };
         const transformSpy = t.spy(mapStub, '_transformRequest');
         const source = new GeoJSONSource('id', {data: 'https://example.com/data.geojson'}, mockDispatcher);
@@ -214,7 +214,7 @@ test('GeoJSONSource#update', (t) => {
 
 test('GeoJSONSource#serialize', (t) => {
     const mapStub = {
-        _transformRequest: (url) => { return { url: url }; }
+        _transformRequest: (url) => { return { url }; }
     };
     t.test('serialize source with inline data', (t) => {
         const source = new GeoJSONSource('id', {data: hawkHill}, mockDispatcher);

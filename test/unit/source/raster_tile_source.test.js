@@ -8,7 +8,7 @@ function createSource(options, transformCallback) {
     const source = new RasterTileSource('id', options, { send: function() {} }, options.eventedParent);
     source.onAdd({
         transform: { angle: 0, pitch: 0, showCollisionBoxes: false },
-        _transformRequest: transformCallback ? transformCallback : (url) => { return { url: url }; }
+        _transformRequest: transformCallback ? transformCallback : (url) => { return { url }; }
     });
 
     source.on('error', (e) => {
@@ -37,8 +37,8 @@ test('RasterTileSource', (t) => {
             tiles: ["http://example.com/{z}/{x}/{y}.png"],
             bounds: [-47, -7, -45, -5]
         }));
-        const transformSpy = t.spy((e) => {
-            return { url: e };
+        const transformSpy = t.spy((url) => {
+            return { url };
         });
 
         createSource({ url: "/source.json" }, transformSpy);

@@ -2,8 +2,8 @@
 
 const Evented = require('../util/evented');
 const util = require('../util/util');
+const window = require('../util/window');
 const EXTENT = require('../data/extent');
-const resolveURL = require('../util/mapbox').resolveURL;
 
 import type {Source} from './source';
 import type Map from '../ui/map';
@@ -242,6 +242,12 @@ class GeoJSONSource extends Evented implements Source {
             data: this._data
         });
     }
+}
+
+function resolveURL(url) {
+    const a = window.document.createElement('a');
+    a.href = url;
+    return a.href;
 }
 
 module.exports = GeoJSONSource;

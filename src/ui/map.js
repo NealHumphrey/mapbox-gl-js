@@ -35,6 +35,7 @@ type IControl = {
 /* eslint-enable no-use-before-define */
 
 type ResourceTypeEnum = $Keys<typeof ajax.ResourceType>;
+type RequestTransformFunction = (url: string, resourceType?: ResourceTypeEnum) => RequestParameters;
 
 type MapOptions = {
     hash?: boolean,
@@ -64,7 +65,7 @@ type MapOptions = {
     pitch?: number,
     renderWorldCopies?: boolean,
     maxTileCacheSize?: number,
-    transformRequest?: Function
+    transformRequest?: RequestTransformFunction
 };
 
 type MapEvent =
@@ -202,14 +203,24 @@ const defaultOptions = {
  *   for locally overriding generation of glyphs in the 'CJK Unified Ideographs' and 'Hangul Syllables' ranges.
  *   In these ranges, font settings from the map's style will be ignored, except for font-weight keywords (light/regular/medium/bold).
  *   The purpose of this option is to avoid bandwidth-intensive glyph server requests. (see [Use locally generated ideographs](https://www.mapbox.com/mapbox-gl-js/example/local-ideographs))
- * @param {Function} [options.transformRequest=null] A callback run before the Map makes a request for an external URL (see {@link Map#setRequestTransform}).
+ * @param {RequestTransformFunction} [options.transformRequest=null] A callback run before the Map makes a request for an external URL. The callback can be used to modify the url, set headers, or set the withCredentials property for cross-origin requests.
+ *   Expected to return an object with a `url` property and optionally `headers` and `withCredentials` properties.
  * @example
  * var map = new mapboxgl.Map({
  *   container: 'map',
  *   center: [-122.420679, 37.772537],
  *   zoom: 13,
  *   style: style_object,
- *   hash: true
+ *   hash: true,
+ *   transformRequest: (url, resourceType)=> {
+ *     if(resourceType == 'Source' && url.startsWith('http://myHost') {
+ *       return {
+ *        url: url.replace('http', 'https'),
+ *        headers: { 'my-custom-header': true},
+ *        withCredentials: true
+ *      }
+ *     }
+ *   }
  * });
  * @see [Display a map](https://www.mapbox.com/mapbox-gl-js/examples/)
  */
@@ -228,7 +239,7 @@ class Map extends Camera {
     _repaint: ?boolean;
     _vertices: ?boolean;
     _canvas: HTMLCanvasElement;
-    _transformRequestCallback: Function;
+    _transformRequest: RequestTransformFunction;
 
     constructor(options: MapOptions) {
         options = util.extend({}, defaultOptions, options);
@@ -247,7 +258,9 @@ class Map extends Camera {
         this._trackResize = options.trackResize;
         this._bearingSnap = options.bearingSnap;
         this._refreshExpiredTiles = options.refreshExpiredTiles;
-        this._transformRequestCallback = options.transformRequest;
+
+        const transformRequestFn = options.transformRequest;
+        this._transformRequest = transformRequestFn ?  (url, type) => transformRequestFn(url, type || ajax.ResourceType.Unknown) || ({ url }) : (url) => ({ url });
 
         if (typeof options.container === 'string') {
             this._container = window.document.getElementById(options.container);
@@ -606,49 +619,6 @@ class Map extends Camera {
      * @returns {number} maxZoom
      */
     getMaxZoom() { return this.transform.maxZoom; }
-
-    /**
-     * @private
-     */
-    _transformRequest(url: string, resourceType?: ResourceTypeEnum): RequestParameters {
-        let requestParameters: RequestParameters = {
-            url: url,
-            headers: {}
-        };
-
-        if (!this._transformRequestCallback) {
-            return requestParameters;
-        }
-
-        requestParameters = this._transformRequestCallback(url, resourceType || ajax.ResourceType.Unknown) || requestParameters;
-        return requestParameters;
-    }
-
-    /**
-     * Sets the map's transform request callback function.
-     * The callback can be used to modify the url, set headers, or set the withCredentials property for cross-origin requests.
-     * 
-     * @function setRequestTransform
-     * @param {Function} callback A callback run before the Map makes a request for an external URL. Called with a url and resourceType.
-     *  Expected to return an object with a `url` property and optionally `headers` and `withCredentials` properties.
-     * 
-     * If called with no arguments, the existing callback will be removed.
-     * 
-     * @example
-     * Map.setRequestTransform( (url, resourceType)=> {
-     *  if(resourceType == 'Source' && url.startsWith('http://myHost') {
-     *   return {
-     *    url: url.replace('http', 'https'),
-     *    headers: { 'my-custom-header': true},
-     *    withCredentials: true
-     *  }
-     * });
-     */
-    setRequestTransform(transform: Function) {
-        if (typeof transform == 'function' || !transform) {
-            this._transformRequestCallback = transform;
-        }
-    }
 
     /**
      * Returns a {@link Point} representing pixel coordinates, relative to the map's `container`,

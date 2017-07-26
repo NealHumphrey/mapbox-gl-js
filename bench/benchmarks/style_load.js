@@ -13,16 +13,12 @@ module.exports = function() {
     const evented = new Evented();
 
     class StubMap extends Evented {
-        constructor() {
-            super();
-        }
-
         _transformRequest(url) {
-            return { url: url };
+            return { url };
         }
     }
     const stylesheetURL = `https://api.mapbox.com/styles/v1/mapbox/streets-v9?access_token=${accessToken}`;
-    ajax.getJSON({url: stylesheetURL}, (err, json) => {
+    ajax.getJSON({ url: stylesheetURL }, (err, json) => {
         if (err) {
             return evented.fire('error', {error: err});
         }

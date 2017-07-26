@@ -37,7 +37,7 @@ test('GlyphSource', (t) => {
 
     t.test('transforms glyph URL before request', (t) => {
         t.stub(ajax, 'getArrayBuffer').callsFake((url, cb) => cb());
-        const transformSpy = t.stub().callsFake((url) => { return { url: url }; });
+        const transformSpy = t.stub().callsFake((url) => { return { url }; });
         const source = new GlyphSource("https://localhost/fonts/v1/{fontstack}/{range}.pbf", false, null, transformSpy);
 
         source.loadPBF("https://localhost/fonts/v1/Arial Unicode MS/0-255.pbf", () => {

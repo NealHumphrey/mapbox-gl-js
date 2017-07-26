@@ -47,7 +47,7 @@ class StubMap extends Evented {
     }
 
     _transformRequest(url) {
-        return { url: url };
+        return { url };
     }
 }
 
@@ -138,7 +138,7 @@ test('Style', (t) => {
                     "tiles": []
                 }
             }
-        }));
+        }), new StubMap());
         style.on('style.load', () => {
             t.ok(style.sourceCaches['mapbox'] instanceof SourceCache);
             t.end();
@@ -213,7 +213,7 @@ test('Style', (t) => {
                 'source': '-source-id-',
                 'source-layer': '-source-layer-'
             }]
-        }));
+        }), new StubMap());
 
         style.on('style.load', () => {
             style.removeSource('-source-id-');
@@ -305,7 +305,7 @@ test('Style#update', (t) => {
             'source-layer': 'source-layer',
             'type': 'fill'
         }]
-    });
+    }, new StubMap());
 
     style.on('error', (error) => { t.error(error); });
 
@@ -340,7 +340,7 @@ test('Style#_resolve', (t) => {
                 "source-layer": "source-layer",
                 "type": "fill"
             }]
-        });
+        }, new StubMap());
 
         style.on('error', (error) => { t.error(error); });
 
@@ -368,7 +368,7 @@ test('Style#_resolve', (t) => {
                 "type": "fill",
                 "layout": {"visibility": "none"}
             }]
-        });
+        }, new StubMap());
 
         style.on('error', (event) => { t.error(event.error); });
 
@@ -461,7 +461,7 @@ test('Style#setState', (t) => {
 
 test('Style#addSource', (t) => {
     t.test('throw before loaded', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             source = createSource();
         t.throws(() => {
             style.addSource('source-id', source);
@@ -472,7 +472,7 @@ test('Style#addSource', (t) => {
     });
 
     t.test('throw if missing source type', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             source = createSource();
 
         delete source.type;
@@ -486,7 +486,7 @@ test('Style#addSource', (t) => {
     });
 
     t.test('fires "data" event', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             source = createSource();
         style.once('data', t.end);
         style.on('style.load', () => {
@@ -496,7 +496,7 @@ test('Style#addSource', (t) => {
     });
 
     t.test('throws on duplicates', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             source = createSource();
         style.on('style.load', () => {
             style.addSource('source-id', source);
@@ -508,7 +508,7 @@ test('Style#addSource', (t) => {
     });
 
     t.test('emits on invalid source', (t) => {
-        const style = new Style(createStyleJSON());
+        const style = new Style(createStyleJSON(), new StubMap());
         style.on('style.load', () => {
             style.on('error', () => {
                 t.notOk(style.sourceCaches['source-id']);
@@ -530,7 +530,7 @@ test('Style#addSource', (t) => {
                 id: 'background',
                 type: 'background'
             }]
-        }));
+        }), new StubMap());
         const source = createSource();
 
         style.on('style.load', () => {
@@ -565,7 +565,7 @@ test('Style#removeSource', (t) => {
                     "tiles": []
                 }
             }
-        }));
+        }), new StubMap());
         t.throws(() => {
             style.removeSource('source-id');
         }, Error, /load/i);
@@ -575,7 +575,7 @@ test('Style#removeSource', (t) => {
     });
 
     t.test('fires "data" event', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             source = createSource();
         style.once('data', t.end);
         style.on('style.load', () => {
@@ -588,7 +588,7 @@ test('Style#removeSource', (t) => {
     t.test('clears tiles', (t) => {
         const style = new Style(createStyleJSON({
             sources: {'source-id': createGeoJSONSource()}
-        }));
+        }), new StubMap());
 
         style.on('style.load', () => {
             const sourceCache = style.sourceCaches['source-id'];
@@ -602,7 +602,7 @@ test('Style#removeSource', (t) => {
     t.test('emits errors for an invalid style', (t) => {
         const stylesheet = createStyleJSON();
         stylesheet.version =  'INVALID';
-        const style = new Style(stylesheet);
+        const style = new Style(stylesheet, new StubMap());
         style.on('error', (e) => {
             t.deepEqual(e.error.message, 'version: expected one of [8], INVALID found');
             t.end();
@@ -610,7 +610,7 @@ test('Style#removeSource', (t) => {
     });
 
     t.test('throws on non-existence', (t) => {
-        const style = new Style(createStyleJSON());
+        const style = new Style(createStyleJSON(), new StubMap());
         style.on('style.load', () => {
             t.throws(() => {
                 style.removeSource('source-id');
@@ -620,7 +620,7 @@ test('Style#removeSource', (t) => {
     });
 
     t.test('tears down source event forwarding', (t) => {
-        const style = new Style(createStyleJSON());
+        const style = new Style(createStyleJSON(), new StubMap());
         let source = createSource();
 
         style.on('style.load', () => {
@@ -646,7 +646,7 @@ test('Style#removeSource', (t) => {
 
 test('Style#addLayer', (t) => {
     t.test('throw before loaded', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             layer = {id: 'background', type: 'background'};
         t.throws(() => {
             style.addLayer(layer);
@@ -657,7 +657,7 @@ test('Style#addLayer', (t) => {
     });
 
     t.test('sets up layer event forwarding', (t) => {
-        const style = new Style(createStyleJSON());
+        const style = new Style(createStyleJSON(), new StubMap());
 
         style.on('error', (e) => {
             t.deepEqual(e.layer, {id: 'background'});
@@ -680,7 +680,7 @@ test('Style#addLayer', (t) => {
                 // At least one source must be added to trigger the load event
                 dummy: { type: "vector", tiles: [] }
             }
-        }));
+        }), new StubMap());
 
         style.on('style.load', () => {
             const source = createSource();
@@ -707,7 +707,7 @@ test('Style#addLayer', (t) => {
     });
 
     t.test('emits error on invalid layer', (t) => {
-        const style = new Style(createStyleJSON());
+        const style = new Style(createStyleJSON(), new StubMap());
         style.on('style.load', () => {
             style.on('error', () => {
                 t.notOk(style.getLayer('background'));
@@ -731,7 +731,7 @@ test('Style#addLayer', (t) => {
                     "tiles": []
                 }
             }
-        }));
+        }), new StubMap());
         const layer = {
             "id": "symbol",
             "type": "symbol",
@@ -764,7 +764,7 @@ test('Style#addLayer', (t) => {
                 "source-layer": "boxmap",
                 "filter": ["==", "id", 0]
             }]
-        }));
+        }), new StubMap());
 
         const layer = {
             "id": "my-layer",
@@ -800,7 +800,7 @@ test('Style#addLayer', (t) => {
                 "source-layer": "boxmap",
                 "filter": ["==", "id", 0]
             }]
-        }));
+        }), new StubMap());
 
         const layer = {
             "id": "my-layer",
@@ -821,7 +821,7 @@ test('Style#addLayer', (t) => {
     });
 
     t.test('fires "data" event', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             layer = {id: 'background', type: 'background'};
 
         style.once('data', t.end);
@@ -833,7 +833,7 @@ test('Style#addLayer', (t) => {
     });
 
     t.test('emits error on duplicates', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             layer = {id: 'background', type: 'background'};
 
         style.on('error', (e) => {
@@ -858,7 +858,7 @@ test('Style#addLayer', (t) => {
                     id: 'b',
                     type: 'background'
                 }]
-            })),
+            }), new StubMap()),
             layer = {id: 'c', type: 'background'};
 
         style.on('style.load', () => {
@@ -877,7 +877,7 @@ test('Style#addLayer', (t) => {
                     id: 'b',
                     type: 'background'
                 }]
-            })),
+            }), new StubMap()),
             layer = {id: 'c', type: 'background'};
 
         style.on('style.load', () => {
@@ -895,7 +895,7 @@ test('Style#addLayer', (t) => {
                     data: { type: 'FeatureCollection', features: [] }
                 }
             }
-        }));
+        }), new StubMap());
 
         const layer = {
             id: 'dummy',
@@ -921,7 +921,7 @@ test('Style#removeLayer', (t) => {
     t.test('throw before loaded', (t) => {
         const style = new Style(createStyleJSON({
             "layers": [{id: 'background', type: 'background'}]
-        }));
+        }), new StubMap());
         t.throws(() => {
             style.removeLayer('background');
         }, Error, /load/i);
@@ -931,7 +931,7 @@ test('Style#removeLayer', (t) => {
     });
 
     t.test('fires "data" event', (t) => {
-        const style = new Style(createStyleJSON()),
+        const style = new Style(createStyleJSON(), new StubMap()),
             layer = {id: 'background', type: 'background'};
 
         style.once('data', t.end);
@@ -949,7 +949,7 @@ test('Style#removeLayer', (t) => {
                 id: 'background',
                 type: 'background'
             }]
-        }));
+        }), new StubMap());
 
         style.on('error', () => {
             t.fail();
@@ -968,7 +968,7 @@ test('Style#removeLayer', (t) => {
     });
 
     t.test('fires an error on non-existence', (t) => {
-        const style = new Style(createStyleJSON());
+        const style = new Style(createStyleJSON(), new StubMap());
 
         style.on('style.load', () => {
             style.on('error', ({ error }) => {
@@ -1386,7 +1386,7 @@ test('Style#queryRenderedFeatures', (t) => {
                 "something": "else"
             }
         }]
-    });
+    }, new StubMap());
 
     style.on('style.load', () => {
         style._applyClasses([]);

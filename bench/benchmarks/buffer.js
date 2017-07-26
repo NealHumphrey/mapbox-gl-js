@@ -24,7 +24,7 @@ module.exports = function run() {
     const evented = new Evented();
 
     const stylesheetURL = `https://api.mapbox.com/styles/v1/mapbox/streets-v9?access_token=${accessToken}`;
-    ajax.getJSON({ url: stylesheetURL}, (err, stylesheet) => {
+    ajax.getJSON({ url: stylesheetURL }, (err, stylesheet) => {
         if (err) return evented.fire('error', {error: err});
 
         evented.fire('log', {
@@ -83,12 +83,8 @@ module.exports = function run() {
 };
 
 class StubMap extends Evented {
-    constructor() {
-        super();
-    }
-
     _transformRequest(url) {
-        return { url: url };
+        return { url };
     }
 }
 
@@ -117,7 +113,7 @@ function preloadAssets(stylesheet, callback) {
         }
 
         function getTile(url, callback) {
-            ajax.getArrayBuffer({ url: url}, (err, response) => {
+            ajax.getArrayBuffer({ url }, (err, response) => {
                 assets.tiles[url] = response.data;
                 callback(err, response.data);
             });

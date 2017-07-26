@@ -8,6 +8,7 @@ import type {SerializedFeatureIndex} from '../data/feature_index';
 import type {SerializedCollisionTile} from '../symbol/collision_tile';
 import type {SerializedStructArray} from '../util/struct_array';
 import type {RequestParameters} from '../util/ajax';
+
 export type TileParameters = {
     source: string,
     uid: string,

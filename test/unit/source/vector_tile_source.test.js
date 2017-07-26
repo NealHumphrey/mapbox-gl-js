@@ -10,7 +10,7 @@ function createSource(options, transformCallback) {
     const source = new VectorTileSource('id', options, { send: function() {} }, options.eventedParent);
     source.onAdd({
         transform: { angle: 0, pitch: 0, cameraToCenterDistance: 1, cameraToTileDistance: () => { return 1; }, showCollisionBoxes: false },
-        _transformRequest: transformCallback ? transformCallback : (url) => { return { url: url }; }
+        _transformRequest: transformCallback ? transformCallback : (url) => { return { url }; }
     });
 
     source.on('error', (e) => {
@@ -71,8 +71,8 @@ test('VectorTileSource', (t) => {
 
     t.test('transforms the request for TileJSON URL', (t) => {
         window.server.respondWith('/source.json', JSON.stringify(require('../../fixtures/source')));
-        const transformSpy = t.spy((e) => {
-            return { url: e };
+        const transformSpy = t.spy((url) => {
+            return { url };
         });
 
         createSource({ url: "/source.json" }, transformSpy);

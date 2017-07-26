@@ -23,7 +23,7 @@ class StubMap extends Evented {
     }
 
     _transformRequest(url) {
-        return { url: url };
+        return { url };
     }
 }
 
@@ -32,7 +32,7 @@ test('ImageSource', (t) => {
     t.stub(ajax, 'getImage').callsFake((params, callback) => { callback(null, new ArrayBuffer(1)); });
 
     t.test('constructor', (t) => {
-        const source = createSource({ url : '/image.png'});
+        const source = createSource({ url : '/image.png' });
 
         t.equal(source.minzoom, 0);
         t.equal(source.maxzoom, 22);
@@ -41,7 +41,7 @@ test('ImageSource', (t) => {
     });
 
     t.test('fires dataloading event', (t) => {
-        const source = createSource({ url : '/image.png'});
+        const source = createSource({ url : '/image.png' });
         source.on('dataloading', (e) => {
             t.equal(e.dataType, 'source');
             t.end();
@@ -50,7 +50,7 @@ test('ImageSource', (t) => {
     });
 
     t.test('transforms url request', (t) => {
-        const source = createSource({ url : '/image.png'});
+        const source = createSource({ url : '/image.png' });
         const map = new StubMap();
         const spy = t.spy(map, '_transformRequest');
         source.onAdd(map);
@@ -61,7 +61,7 @@ test('ImageSource', (t) => {
     });
 
     t.test('fires data event when content is loaded', (t) => {
-        const source = createSource({ url : '/image.png'});
+        const source = createSource({ url : '/image.png' });
         source.on('data', (e) => {
             if (e.dataType === 'source' && e.sourceDataType === 'content') {
                 t.ok(typeof source.coord == 'object');
@@ -72,7 +72,7 @@ test('ImageSource', (t) => {
     });
 
     t.test('fires data event when metadata is loaded', (t) => {
-        const source = createSource({ url : '/image.png'});
+        const source = createSource({ url : '/image.png' });
         source.on('data', (e) => {
             if (e.dataType === 'source' && e.sourceDataType === 'metadata') {
                 t.end();
